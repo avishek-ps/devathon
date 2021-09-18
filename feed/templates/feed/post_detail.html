@@ -1,0 +1,39 @@
+{% extends "feed/base.html" %}
+{% block content %}
+	<article class="media content-section">
+	  <img class="rounded-circle article-img" src="{{ post.author.profile.image.url }}">
+	  <div class="media-body">
+	    <div class="article-metadata">
+	      <a class="mr-2" href="{% url 'profile' post.author.id %}">{{ post.author }}</a>
+	      <small class="text-muted">{{ post.date_posted|date:"F d, Y" }}</small>
+	      {% if post.author == user %}
+	      	<div>
+	      		<a class="btn btn-secondary btn-sm mt-1 mb-1" href="{% url 'post-update' post.id %}">Update</a>
+	      		<a class="btn btn-danger btn-sm mt-1 mb-1" href="{% url 'post-delete' post.id %}">Delete</a>
+	      	</div>
+	      {% endif %}
+	    </div>
+	    <h2 class="article-title">{{ post.title }}</h2>
+	    {% if post.image %}
+          <img style="width:100%; height:auto;" src="{{ post.image.url }}">
+        {% endif %}
+	    <p class="article-content">{{ post.content }}</p>
+	    <!-- LIKES -->
+		{% if user.is_authenticated %}
+		  <form action="{% url 'post-upvote' object.id %}" method="POST">
+		    {% csrf_token %}
+
+		    {% if post_is_liked %}
+		    <button type="submit" name="post_id" value="{{object.id}}" class="btn btn-info">Unlike</button>
+		    {% else %}
+		    <button type="submit" name="post_id" value="{{object.id}}" class="btn btn-info">Like</button>
+		    {% endif %}
+		  </form>
+		{% else %}
+		  <a class="btn btn-outline-info" href="{% url 'login' %}?next={{request.path}}">Log in to like this article!</a><br>
+		{% endif %}
+		<strong class="text-secondary">{{ number_of_likes }} Like{{ number_of_likes|pluralize }}</strong>
+
+	  </div>
+	</article>
+{% endblock content %}
